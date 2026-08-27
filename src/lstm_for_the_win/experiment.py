@@ -104,6 +104,12 @@ def environment_versions() -> dict[str, str]:
         "scikit_learn": version("scikit-learn"),
         "scipy": version("scipy"),
         "numpy": version("numpy"),
+        "operating_system": platform.system(),
+        "os_release": platform.release(),
+        "machine": platform.machine(),
+        "python_implementation": platform.python_implementation(),
+        "runner_os": os.getenv("RUNNER_OS", "local"),
+        "runner_arch": os.getenv("RUNNER_ARCH", "local"),
     }
 
 
