@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600">
+<rect width="100%" height="100%" fill="white"/>
+<text x="40" y="48" font-family="DejaVu Sans, Arial, sans-serif" font-size="24" font-weight="700">Incoming topic confusion matrix</text>
+<text x="332.5" y="92" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">refrigerator</text>
+<text x="437.5" y="92" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">smartphone</text>
+<text x="542.5" y="92" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">television</text>
+<text x="647.5" y="92" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">washing machine</text>
+<text x="262" y="167.5" text-anchor="end" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">refrigerator</text>
+<rect x="280" y="110" width="105" height="105" fill="#4c78a8" fill-opacity="0.7731" stroke="white"/>
+<text x="332.5" y="168.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">355</text>
+<rect x="385" y="110" width="105" height="105" fill="#4c78a8" fill-opacity="0.3904" stroke="white"/>
+<text x="437.5" y="168.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">147</text>
+<rect x="490" y="110" width="105" height="105" fill="#4c78a8" fill-opacity="0.1366" stroke="white"/>
+<text x="542.5" y="168.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">9</text>
+<rect x="595" y="110" width="105" height="105" fill="#4c78a8" fill-opacity="0.1513" stroke="white"/>
+<text x="647.5" y="168.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">17</text>
+<text x="262" y="272.5" text-anchor="end" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">smartphone</text>
+<rect x="280" y="215" width="105" height="105" fill="#4c78a8" fill-opacity="0.1770" stroke="white"/>
+<text x="332.5" y="273.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">31</text>
+<rect x="385" y="215" width="105" height="105" fill="#4c78a8" fill-opacity="0.9000" stroke="white"/>
+<text x="437.5" y="273.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">424</text>
+<rect x="490" y="215" width="105" height="105" fill="#4c78a8" fill-opacity="0.1844" stroke="white"/>
+<text x="542.5" y="273.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">35</text>
+<rect x="595" y="215" width="105" height="105" fill="#4c78a8" fill-opacity="0.1789" stroke="white"/>
+<text x="647.5" y="273.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">32</text>
+<text x="262" y="377.5" text-anchor="end" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">television</text>
+<rect x="280" y="320" width="105" height="105" fill="#4c78a8" fill-opacity="0.2101" stroke="white"/>
+<text x="332.5" y="378.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">49</text>
+<rect x="385" y="320" width="105" height="105" fill="#4c78a8" fill-opacity="0.4107" stroke="white"/>
+<text x="437.5" y="378.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">158</text>
+<rect x="490" y="320" width="105" height="105" fill="#4c78a8" fill-opacity="0.6093" stroke="white"/>
+<text x="542.5" y="378.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">266</text>
+<rect x="595" y="320" width="105" height="105" fill="#4c78a8" fill-opacity="0.2322" stroke="white"/>
+<text x="647.5" y="378.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">61</text>
+<text x="262" y="482.5" text-anchor="end" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">washing machine</text>
+<rect x="280" y="425" width="105" height="105" fill="#4c78a8" fill-opacity="0.3775" stroke="white"/>
+<text x="332.5" y="483.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">140</text>
+<rect x="385" y="425" width="105" height="105" fill="#4c78a8" fill-opacity="0.3021" stroke="white"/>
+<text x="437.5" y="483.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">99</text>
+<rect x="490" y="425" width="105" height="105" fill="#4c78a8" fill-opacity="0.1200" stroke="white"/>
+<text x="542.5" y="483.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">0</text>
+<rect x="595" y="425" width="105" height="105" fill="#4c78a8" fill-opacity="0.6296" stroke="white"/>
+<text x="647.5" y="483.5" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="16">277</text>
+<text x="490.0" y="574" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="15">Predicted</text>
+<text x="55" y="320.0" transform="rotate(-90 55 320.0)" text-anchor="middle" font-family="DejaVu Sans, Arial, sans-serif" font-size="15">Expected</text></svg>

@@ -5,14 +5,14 @@
 <line x1="230" y1="90" x2="230" y2="530" stroke="#333"/>
 <line x1="230" y1="530" x2="900" y2="530" stroke="#333"/>
 <text x="218" y="153.8" text-anchor="end" font-family="DejaVu Sans, Arial, sans-serif" font-size="15">Sentiment LSTM</text>
-<rect x="230" y="123.0" width="524.83" height="44.0" fill="#4c78a8"/>
-<text x="762.8" y="153.8" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">0.783</text>
+<rect x="230" y="123.0" width="519.30" height="44.0" fill="#4c78a8"/>
+<text x="757.3" y="153.8" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">0.775</text>
 <text x="218" y="263.8" text-anchor="end" font-family="DejaVu Sans, Arial, sans-serif" font-size="15">Sentiment baseline</text>
 <rect x="230" y="233.0" width="549.72" height="44.0" fill="#4c78a8"/>
 <text x="787.7" y="263.8" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">0.820</text>
 <text x="218" y="373.8" text-anchor="end" font-family="DejaVu Sans, Arial, sans-serif" font-size="15">Topic LSTM</text>
-<rect x="230" y="343.0" width="432.20" height="44.0" fill="#4c78a8"/>
-<text x="670.2" y="373.8" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">0.645</text>
+<rect x="230" y="343.0" width="436.03" height="44.0" fill="#4c78a8"/>
+<text x="674.0" y="373.8" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">0.651</text>
 <text x="218" y="483.8" text-anchor="end" font-family="DejaVu Sans, Arial, sans-serif" font-size="15">Topic baseline</text>
 <rect x="230" y="453.0" width="466.45" height="44.0" fill="#4c78a8"/>
 <text x="704.4" y="483.8" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">0.696</text></svg>
