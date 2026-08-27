@@ -5,8 +5,8 @@
 <line x1="230" y1="90" x2="230" y2="530" stroke="#333"/>
 <line x1="230" y1="530" x2="900" y2="530" stroke="#333"/>
 <text x="218" y="208.8" text-anchor="end" font-family="DejaVu Sans, Arial, sans-serif" font-size="15">Sentiment</text>
-<rect x="230" y="178.0" width="525.51" height="44.0" fill="#4c78a8"/>
-<text x="763.5" y="208.8" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">0.784</text>
+<rect x="230" y="178.0" width="520.15" height="44.0" fill="#4c78a8"/>
+<text x="758.1" y="208.8" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">0.776</text>
 <text x="218" y="428.8" text-anchor="end" font-family="DejaVu Sans, Arial, sans-serif" font-size="15">Topic</text>
-<rect x="230" y="398.0" width="364.10" height="44.0" fill="#4c78a8"/>
-<text x="602.1" y="428.8" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">0.543</text></svg>
+<rect x="230" y="398.0" width="409.51" height="44.0" fill="#4c78a8"/>
+<text x="647.5" y="428.8" font-family="DejaVu Sans, Arial, sans-serif" font-size="14">0.611</text></svg>
