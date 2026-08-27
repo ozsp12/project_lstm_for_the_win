@@ -1,63 +1,112 @@
 # LSTM for the Win
 
-Reproducible continual-learning experiment for Long Short-Term Memory (LSTM) classification of product reviews by sentiment and product topic.
+Reproducible framework for controlled product-review classification with Long Short-Term Memory (LSTM) models.
 
 **Project page:** https://ozsp12.github.io/en/projects/lstm_ftw/
 
-## Architecture
+## Project overview
+
+This project studies two supervised text-classification problems on product reviews: sentiment classification and product-topic classification. The framework combines a deterministic synthetic review generator, a cumulative training corpus, an unseen incoming batch, leakage-aware validation, an LSTM classifier, a TF-IDF logistic-regression baseline, a frozen synthetic benchmark, an external real-world sentiment benchmark, statistical evaluation, and a canonical run artifact.
+
+Synthetic data are used to control linguistic properties such as writing level, profanity, emoji use, spelling errors, slang, text length, mixed sentiment, and template family. The data state can evolve through an explicit deterministic promotion mechanism, but this mechanism should be understood as controlled state evolution rather than as empirical evidence of continual-learning performance.
+
+Reproducibility is enforced through frozen input state during model execution, recorded seeds, deterministic TensorFlow operations, immutable benchmarks, hashes and manifests, environment metadata, hash-locked dependencies, and deterministic regeneration of analytical artifacts.
+
+## Scientific objective
+
+The framework is designed to support reproducible comparison of classifiers under controlled linguistic variation and controlled changes in the input distribution. It separates data generation, model fitting, benchmark evaluation, statistical comparison, artifact creation, and data-state transition so that each stage can be inspected independently.
+
+## Classification tasks
+
+The sentiment task uses the labels `negative`, `neutral`, and `positive`. The topic task uses `smartphone`, `television`, `refrigerator`, and `washing_machine`. Both tasks are trained from the same review corpus but use task-specific target labels.
+
+## Conceptual architecture
 
 ```text
-agents/generation_core.py         -> shared deterministic config, vocabularies, helpers and base generator implementation
-agents/synthetic_data.py          -> compatibility surface for historical imports
-agents/improved_synthetic_data.py -> production synthetic generator
-handler.py                        -> controlled input-state transitions
-classification/                   -> LSTM, baseline, metrics and structural validation
-benchmark.py                      -> immutable synthetic longitudinal benchmark
-external_benchmark.py             -> immutable real-world UCI sentiment benchmark
-experiment.py                     -> frozen-state experiment orchestration
-run_artifact.py                   -> canonical run.json
-derived_artifacts.py              -> wide article_analysis.csv and figures/ from run.json only
-cli.py                             -> command-line interface
+Configuration
+    ↓
+Synthetic Review Generator
+    ↓
+Train / Incoming / Frozen Benchmark
+    ↓
+Validation Split
+    ↓
+LSTM and TF-IDF Logistic Regression
+    ↓
+Evaluation
+    ↓
+External Validation
+    ↓
+run.json
+    ↓
+Deterministic Derived Analytical Artifacts
 ```
 
-The production generator is exported as `lstm_for_the_win.agents.SyntheticDataAgent`. Shared generation primitives and the base implementation are isolated in `generation_core.py`; `synthetic_data.py` remains only as a stable compatibility surface for historical imports.
+The data-state transition is separate from model execution:
+
+```text
+incoming
+    ↓
+deterministic promotion subset
+    ↓
+cumulative train
+    ↓
+next incoming generation
+```
+
+`goldtest` is the deterministic marker used to select records for promotion. It is not a human annotation, independent review, or externally produced ground truth.
 
 ## Data lifecycle
 
-`data/input/train.csv` is cumulative. `data/input/incoming.csv` represents the current unseen synthetic batch. New records receive `template_family` directly at render time; the value is then persisted and used for family-level validation splitting. The generator also varies stratum sizes, mixed-sentiment placement, linguistic structure and spelling noise so the synthetic corpus is not perfectly regular.
+`data/input/train.csv` is the cumulative training corpus. `data/input/incoming.csv` is the current unseen batch evaluated by the current model state. `data/input/benchmark.csv` is a frozen synthetic benchmark that remains outside training. External benchmark data are stored separately under `data/external/`.
 
-Training and data advancement are separate operations. The production experiment always trains on a frozen committed input state. `.github/workflows/advance-data.yml` performs the optional next-generation transition: rows marked `goldtest=1` are promoted into `train.csv`, a fresh `incoming.csv` is generated, and that committed state then triggers a new frozen-state experiment. The `goldtest` flag is a deterministic promotion marker in the current synthetic workflow; it is not evidence of independent human review. A reset publishes generation 0 without immediately promoting any rows.
+Model execution uses a frozen committed input state. Data advancement is an explicit operation performed after the evaluated state is complete. Detailed data contracts are documented in [`data/README.md`](data/README.md) and [`data/input/README.md`](data/input/README.md).
 
-`data/input/benchmark.csv` is an immutable synthetic benchmark built from non-gold incoming rows and never promoted into training. `data/external/` contains the Amazon subset of UCI **Sentiment Labelled Sentences** (DOI `10.24432/C57604`, CC BY 4.0). External validation is sentiment-only because the source has no compatible topic labels and no neutral class.
+## Models
 
-## Output contract
-
-`run.json` is the canonical source of truth. `article_analysis.csv` and every file in `figures/` are deterministic derivatives generated exclusively from the same run.
+The neural classifier follows:
 
 ```text
-data/output/
-├── latest.json
-└── <timestamp>_github-<run_id>/
-    ├── run.json
-    ├── article_analysis.csv
-    └── figures/
+raw text → TextVectorization → Embedding → LSTM → Dropout → Dense/ReLU → Softmax
 ```
 
-Only the latest fully validated run is retained. The previous run is removed only after the replacement passes contract validation, deterministic regeneration, automated tests and the coverage gate.
+The comparison baseline follows:
 
-`article_analysis.csv` is a conventional wide table for human inspection: one row per incoming observation, with review metadata, predictions, canonical model metrics, baseline metrics, paired-test information, benchmark accuracy and external-validation summaries in columns. It performs no independent calculation.
+```text
+raw text → TF-IDF unigrams/bigrams → logistic regression → class probabilities
+```
 
-## Experimental safeguards
+Exact model and baseline parameters are documented in [`src/lstm_for_the_win/README.md`](src/lstm_for_the_win/README.md).
 
-The validation split prefers holding out an entire persisted sentence-template family. Production uses model seeds `42`, `1337` and `2026`; means across those seeds are the canonical comparable metrics, with Student-t 95% intervals. Primary-seed results remain in the artifact for individual predictions, training history and confusion matrices.
+## Evaluation framework
 
-Each task records the confusion-matrix convention explicitly as rows = expected and columns = predicted. Segment accuracy includes Wilson 95% intervals and support. Expected calibration error (ECE) is accompanied by the ten reliability bins used to compute it. LSTM and TF-IDF logistic regression are compared with an exact two-sided McNemar test.
+The implemented evaluation includes accuracy, macro precision, macro recall, macro F1, weighted F1, log loss, Brier score, Expected Calibration Error, reliability bins, confusion matrices, Wilson confidence intervals for segmented accuracy, and exact two-sided McNemar comparison between paired LSTM and baseline predictions. Production runs can aggregate comparable metrics across multiple model seeds.
 
-The external Amazon evaluation reports both the native three-class model result and a source-compatible binary result obtained by restricting and renormalizing probabilities to `{negative, positive}`. Full probability vectors are preserved for external observations. This distinction prevents neutral predictions from being conflated with performance under the binary source label space.
+Segmented evaluation can use linguistic level, profanity, emoji use, spelling errors, slang, text length, mixed sentiment, `goldtest`, and template family. These facilities define the analysis framework; the documentation does not assign scientific interpretation to current subgroup results.
+
+## Data and artifact organization
+
+```text
+data/input/     controlled synthetic input state and frozen synthetic benchmark
+data/external/  immutable independently sourced benchmark data
+data/output/    latest validated run and deterministic derivatives
+```
+
+`run.json` is the canonical source of truth for a run. `article_analysis.csv` and files under `figures/` are deterministic representations derived from that JSON and must not become independent sources of truth.
 
 ## Reproducibility
 
-The environment is hash-locked, SciPy is a direct dependency, GitHub Actions are pinned by immutable SHA, and coverage measurement includes both statements and branches with an overall gate of at least 90% across the active package code. TensorFlow deterministic operations are enabled and `PYTHONHASHSEED`, deterministic-operation state, model seeds and split seed are recorded or enforced by CI. The canonical run also records Python and library versions plus operating-system and machine-architecture metadata. Metric implementations are regression-tested against `sklearn.metrics` reference implementations.
+The runtime uses Python 3.12 and TensorFlow 2.20. Dependencies are installed from a hash-locked environment. TensorFlow operation determinism and process seeds are enforced, model and split seeds are recorded, benchmark integrity is checked with hashes, and the canonical artifact records software and platform metadata. Coverage measurement includes statements and branches with an overall gate of at least 90%.
+
+## Repository structure
+
+Implementation details are distributed across the local documentation:
+
+- [`config/README.md`](config/README.md): synthetic-generation configuration and effective parameters;
+- [`data/README.md`](data/README.md): data roles and artifact contracts;
+- [`src/lstm_for_the_win/README.md`](src/lstm_for_the_win/README.md): scientific software architecture.
+
+## Installation and execution
 
 ```bash
 python -m venv .venv
@@ -66,11 +115,10 @@ python -m pip install --require-hashes -r requirements-lock.txt
 python -m pip install -e . --no-deps --no-build-isolation
 python -m pip check
 lstm-pipeline train --run-id local --epochs 20 --replicate-seeds "42,1337,2026"
-python -m lstm_for_the_win.derived_artifacts data/output/local/run.json
 ```
 
-Python 3.12 · TensorFlow 2.20
+Synthetic input generation and controlled state advancement are exposed through the same `lstm-pipeline` command-line interface. Configuration details are documented under `config/`.
 
 ## Licensing and citation
 
-Repository software is licensed under the MIT License. External dataset licensing and attribution are documented separately in `DATA_LICENSES.md`; the UCI Amazon subset remains CC BY 4.0. Citation metadata are provided in `CITATION.cff`, and CI verifies that citation, package, project and pipeline versions remain synchronized.
+Repository software is licensed under the MIT License. External dataset licensing and attribution are documented in `DATA_LICENSES.md`. Citation metadata are provided in `CITATION.cff`.
