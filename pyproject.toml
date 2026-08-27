@@ -29,4 +29,7 @@ where = ["src"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
-addopts = "--cov=lstm_for_the_win --cov-report=term-missing --cov-fail-under=90"
+addopts = "--cov=lstm_for_the_win --cov-branch --cov-report=term-missing --cov-fail-under=90"
+
+[tool.coverage.run]
+branch = true
