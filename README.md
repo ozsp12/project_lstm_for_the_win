@@ -7,7 +7,7 @@ Reproducible continual-learning experiment for Long Short-Term Memory (LSTM) cla
 ## Architecture
 
 ```text
-agents/generation_core.py         -> shared deterministic config, vocabularies, helpers and reference generator
+agents/generation_core.py         -> shared deterministic config, vocabularies, helpers and base generator implementation
 agents/synthetic_data.py          -> compatibility surface for historical imports
 agents/improved_synthetic_data.py -> production synthetic generator
 handler.py                        -> controlled input-state transitions
@@ -20,13 +20,13 @@ derived_artifacts.py              -> wide article_analysis.csv and figures/ from
 cli.py                             -> command-line interface
 ```
 
-The production generator is exported as `lstm_for_the_win.agents.SyntheticDataAgent`. Shared generation primitives are isolated in `generation_core.py`; `synthetic_data.py` remains only as a stable compatibility surface so historical imports do not carry a second implementation.
+The production generator is exported as `lstm_for_the_win.agents.SyntheticDataAgent`. Shared generation primitives and the base implementation are isolated in `generation_core.py`; `synthetic_data.py` remains only as a stable compatibility surface for historical imports.
 
 ## Data lifecycle
 
 `data/input/train.csv` is cumulative. `data/input/incoming.csv` represents the current unseen synthetic batch. New records receive `template_family` directly at render time; the value is then persisted and used for family-level validation splitting. The generator also varies stratum sizes, mixed-sentiment placement, linguistic structure and spelling noise so the synthetic corpus is not perfectly regular.
 
-Training and data advancement are separate operations. The production experiment always trains on a frozen committed input state. `.github/workflows/advance-data.yml` performs the optional next-generation transition: approved `goldtest=1` rows are promoted into `train.csv`, a fresh `incoming.csv` is generated, and that committed state then triggers a new frozen-state experiment. A reset publishes generation 0 without immediately promoting any rows.
+Training and data advancement are separate operations. The production experiment always trains on a frozen committed input state. `.github/workflows/advance-data.yml` performs the optional next-generation transition: rows marked `goldtest=1` are promoted into `train.csv`, a fresh `incoming.csv` is generated, and that committed state then triggers a new frozen-state experiment. The `goldtest` flag is a deterministic promotion marker in the current synthetic workflow; it is not evidence of independent human review. A reset publishes generation 0 without immediately promoting any rows.
 
 `data/input/benchmark.csv` is an immutable synthetic benchmark built from non-gold incoming rows and never promoted into training. `data/external/` contains the Amazon subset of UCI **Sentiment Labelled Sentences** (DOI `10.24432/C57604`, CC BY 4.0). External validation is sentiment-only because the source has no compatible topic labels and no neutral class.
 
@@ -57,7 +57,7 @@ The external Amazon evaluation reports both the native three-class model result 
 
 ## Reproducibility
 
-The environment is hash-locked, SciPy is a direct dependency, GitHub Actions are pinned by immutable SHA, and test coverage must remain at least 90% across the active package code. TensorFlow deterministic operations are enabled and `PYTHONHASHSEED`, deterministic-operation state, model seeds and split seed are recorded or enforced by CI. Metric implementations are regression-tested against `sklearn.metrics` reference implementations.
+The environment is hash-locked, SciPy is a direct dependency, GitHub Actions are pinned by immutable SHA, and both statement and branch coverage must remain at least 90% across the active package code. TensorFlow deterministic operations are enabled and `PYTHONHASHSEED`, deterministic-operation state, model seeds and split seed are recorded or enforced by CI. The canonical run also records Python and library versions plus operating-system and machine-architecture metadata. Metric implementations are regression-tested against `sklearn.metrics` reference implementations.
 
 ```bash
 python -m venv .venv
