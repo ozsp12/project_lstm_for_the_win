@@ -7,16 +7,20 @@ Reproducible continual-learning experiment for Long Short-Term Memory (LSTM) cla
 ## Architecture
 
 ```text
-agents/improved_synthetic_data.py -> cumulative train.csv and refreshed incoming.csv
-handler.py                         -> controlled input-state transitions
-classification/                    -> LSTM, baseline, metrics and structural validation
-benchmark.py                       -> immutable synthetic longitudinal benchmark
-external_benchmark.py              -> immutable real-world UCI sentiment benchmark
-experiment.py                      -> frozen-state experiment orchestration
-run_artifact.py                    -> canonical run.json
-derived_artifacts.py               -> wide article_analysis.csv and figures/ from run.json only
+agents/generation_core.py         -> shared deterministic config, vocabularies, helpers and reference generator
+agents/synthetic_data.py          -> compatibility surface for historical imports
+agents/improved_synthetic_data.py -> production synthetic generator
+handler.py                        -> controlled input-state transitions
+classification/                   -> LSTM, baseline, metrics and structural validation
+benchmark.py                      -> immutable synthetic longitudinal benchmark
+external_benchmark.py             -> immutable real-world UCI sentiment benchmark
+experiment.py                     -> frozen-state experiment orchestration
+run_artifact.py                   -> canonical run.json
+derived_artifacts.py              -> wide article_analysis.csv and figures/ from run.json only
 cli.py                             -> command-line interface
 ```
+
+The production generator is exported as `lstm_for_the_win.agents.SyntheticDataAgent`. Shared generation primitives are isolated in `generation_core.py`; `synthetic_data.py` remains only as a stable compatibility surface so historical imports do not carry a second implementation.
 
 ## Data lifecycle
 
@@ -53,7 +57,7 @@ The external Amazon evaluation reports both the native three-class model result 
 
 ## Reproducibility
 
-The environment is hash-locked, SciPy is a direct dependency, GitHub Actions are pinned by immutable SHA, and test coverage must remain at least 90%. TensorFlow deterministic operations are enabled and `PYTHONHASHSEED`, deterministic-operation state, model seeds and split seed are recorded or enforced by CI. Metric implementations are regression-tested against `sklearn.metrics` reference implementations.
+The environment is hash-locked, SciPy is a direct dependency, GitHub Actions are pinned by immutable SHA, and test coverage must remain at least 90% across the active package code. TensorFlow deterministic operations are enabled and `PYTHONHASHSEED`, deterministic-operation state, model seeds and split seed are recorded or enforced by CI. Metric implementations are regression-tested against `sklearn.metrics` reference implementations.
 
 ```bash
 python -m venv .venv

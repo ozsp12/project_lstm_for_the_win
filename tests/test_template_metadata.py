@@ -1,35 +1,82 @@
 from __future__ import annotations
 
 import csv
-import hashlib
 import json
 from pathlib import Path
 
-from lstm_for_the_win.agents import SyntheticDataAgent, SyntheticDataConfig
-from lstm_for_the_win.template_metadata import TEMPLATE_FAMILIES, ensure_template_metadata
+import pytest
+
+from lstm_for_the_win.template_metadata import (
+    TEMPLATE_FAMILIES,
+    _materialize,
+    ensure_template_metadata,
+    infer_template_family,
+)
 
 
-def _rows(path: Path) -> list[dict[str, str]]:
-    with path.open("r", encoding="utf-8", newline="") as handle:
-        return list(csv.DictReader(handle))
+def _write(path: Path, rows: list[dict[str, str]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]), lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
 
 
-def test_generated_template_family_requires_no_backfill(tmp_path: Path) -> None:
-    input_dir = tmp_path / "input"
-    config = SyntheticDataConfig(initial_train_rows=1200, incoming_rows=1200, incoming_rows_jitter=0, vary_counts=False)
-    SyntheticDataAgent(config).initialize(input_dir, "2026-08-15T12:00:00+00:00")
+def test_template_family_inference_covers_all_patterns() -> None:
+    cases = {
+        "I noticed that the battery works well": "noticed",
+        "I have been using this phone for a week": "using",
+        "The battery is what stood out to me": "stood_out",
+        "My main impression of this phone is positive": "main_impression",
+        "I did not pay much attention to the camera": "attention",
+        "During normal use, the screen works": "context_component",
+    }
+    assert {infer_template_family(text) for text in cases} == set(TEMPLATE_FAMILIES)
+    for text, expected in cases.items():
+        assert infer_template_family(text) == expected
 
-    changed = ensure_template_metadata(input_dir)
-    assert changed == {"train.csv": False, "incoming.csv": False}
-    for name in ("train.csv", "incoming.csv"):
-        rows = _rows(input_dir / name)
-        assert rows
-        assert {row["template_family"] for row in rows}.issubset(set(TEMPLATE_FAMILIES))
 
-    manifest = json.loads((input_dir / "input_manifest.json").read_text(encoding="utf-8"))
+def test_template_metadata_is_materialized_once_and_manifest_refreshed(tmp_path: Path) -> None:
+    train = [
+        {
+            "ID": "1", "text": "I noticed that the battery works well", "sentiment": "positive",
+        },
+        {
+            "ID": "2", "text": "My main impression of this phone is average", "sentiment": "neutral",
+        },
+    ]
+    incoming = [
+        {
+            "ID": "3", "text": "I have been using this phone for a week", "expected_sentiment": "positive",
+        },
+        {
+            "ID": "4", "text": "During normal use, the screen works", "expected_sentiment": "neutral",
+        },
+    ]
+    _write(tmp_path / "train.csv", train)
+    _write(tmp_path / "incoming.csv", incoming)
+    (tmp_path / "input_manifest.json").write_text(json.dumps({"generation": 0}), encoding="utf-8")
+
+    changed = ensure_template_metadata(tmp_path)
+    assert changed == {"train.csv": True, "incoming.csv": True}
+    manifest = json.loads((tmp_path / "input_manifest.json").read_text(encoding="utf-8"))
     assert manifest["template_family_metadata"]["materialized"] is True
-    assert manifest["template_family_metadata"]["origin"] == "generated_at_render_time"
-    assert manifest["incoming_template_family_counts"]
-    for name in ("train.csv", "incoming.csv"):
-        digest = hashlib.sha256((input_dir / name).read_bytes()).hexdigest()
-        assert manifest["sha256"][name] == digest
+    assert manifest["record_counts"] == {"incoming.csv": 2, "train.csv": 2}
+    assert manifest["incoming_template_family_counts"] == {"context_component": 1, "using": 1}
+    assert set(manifest["sha256"]) == {"incoming.csv", "train.csv"}
+
+    assert ensure_template_metadata(tmp_path) == {"train.csv": False, "incoming.csv": False}
+
+
+def test_materialize_rejects_invalid_explicit_family(tmp_path: Path) -> None:
+    path = tmp_path / "train.csv"
+    _write(path, [{"ID": "1", "text": "text", "template_family": "unsupported"}])
+    with pytest.raises(ValueError):
+        _materialize(path)
+
+
+def test_materialize_rejects_headerless_file(tmp_path: Path) -> None:
+    path = tmp_path / "train.csv"
+    path.write_text("", encoding="utf-8")
+    with pytest.raises(ValueError):
+        _materialize(path)
