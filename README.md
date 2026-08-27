@@ -57,7 +57,7 @@ The external Amazon evaluation reports both the native three-class model result 
 
 ## Reproducibility
 
-The environment is hash-locked, SciPy is a direct dependency, GitHub Actions are pinned by immutable SHA, and both statement and branch coverage must remain at least 90% across the active package code. TensorFlow deterministic operations are enabled and `PYTHONHASHSEED`, deterministic-operation state, model seeds and split seed are recorded or enforced by CI. The canonical run also records Python and library versions plus operating-system and machine-architecture metadata. Metric implementations are regression-tested against `sklearn.metrics` reference implementations.
+The environment is hash-locked, SciPy is a direct dependency, GitHub Actions are pinned by immutable SHA, and coverage measurement includes both statements and branches with an overall gate of at least 90% across the active package code. TensorFlow deterministic operations are enabled and `PYTHONHASHSEED`, deterministic-operation state, model seeds and split seed are recorded or enforced by CI. The canonical run also records Python and library versions plus operating-system and machine-architecture metadata. Metric implementations are regression-tested against `sklearn.metrics` reference implementations.
 
 ```bash
 python -m venv .venv
